@@ -5,26 +5,12 @@ import {Application} from "express";
 import * as fs from 'fs';
 import * as https from 'https';
 import {readAllLessons} from "./read-all-lessons.route";
-import {createUser} from "./create-user.route";
-import {getUser} from "./get-user.route";
-import {logout} from "./logout.route";
-import {login} from "./login.route";
-import {retrieveUserIdFromRequest} from "./get-user.middleware";
-import {checkIfAuthenticated} from "./authentication.middleware";
-import {checkCsrfToken} from "./csrf.middleware";
-import {checkIfAuthorized} from "./authorization.middleware";
-import * as _ from 'lodash';
-import {loginAsUser} from "./login-as-user.route";
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 
+const bodyParser = require('body-parser');
 
 const app: Application = express();
 
-app.use(cookieParser());
-app.use(retrieveUserIdFromRequest);
 app.use(bodyParser.json());
-
 
 const commandLineArgs = require('command-line-args');
 
@@ -34,28 +20,10 @@ const optionDefinitions = [
 
 const options = commandLineArgs(optionDefinitions);
 
+
 // REST API
 app.route('/api/lessons')
-    .get(checkIfAuthenticated,
-        _.partial(checkIfAuthorized,['STUDENT']),
-        readAllLessons);
-
-app.route('/api/admin')
-    .post(checkIfAuthenticated,
-        _.partial(checkIfAuthorized,['ADMIN']),
-        loginAsUser);
-
-app.route('/api/signup')
-    .post(createUser);
-
-app.route('/api/user')
-    .get(getUser);
-
-app.route('/api/logout')
-    .post(checkIfAuthenticated, checkCsrfToken, logout);
-
-app.route('/api/login')
-    .post(login);
+    .get(readAllLessons);
 
 
 if (options.secure) {
